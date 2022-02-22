@@ -1,6 +1,6 @@
 # Workaround
 
-conditional copy using `ARG`:
+Conditional copy using `ARG`:
 
 ```dockerfile
 FROM python:3.8
