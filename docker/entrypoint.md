@@ -67,3 +67,7 @@ python3 -m your_module \
   $@ & wait_term
 
 ```
+
+### Ref.
+
+https://unix.stackexchange.com/questions/146756/forward-sigterm-to-child-in-bash
