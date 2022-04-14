@@ -41,6 +41,13 @@ RUN k9s_version="v0.24.2" && \
     rm -rf ./k9s ./k9s.tar.gz && \
     echo "\nInstalled in: $(which k9s)"
 
+
+# VIM IDE
+RUN git clone https://github.com/rapphil/vim-python-ide.git vim-python-ide && \
+    cd vim-python-ide && echo ""| echo ""| ./install.sh
+RUN cd .. && rm -rf vim-python-ide && \
+    sed -i 's/^colorscheme cobalt2/"colorscheme Monokai\ncolorscheme cobalt2/' ~/.vimrc
+
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # ENTRYPOINT ["/bin/bash"]
