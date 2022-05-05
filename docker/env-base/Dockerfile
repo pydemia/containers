@@ -53,4 +53,6 @@ RUN apt-get clean && \
     apt-get autoremove && \
     rm -rf /var/lib/apt/lists
 
+RUN adduser --uid 1000 --gid 1000 --disabled-password --gecos "" pydemia
+
 CMD ["/bin/bash"]

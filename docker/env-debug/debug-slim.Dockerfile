@@ -35,11 +35,14 @@ RUN curl -fsSL -O https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/k
 
 RUN echo 'source <(kubectl completion bash)' >> /etc/bash.bashrc
 
+
 COPY trademark.sh trademark.sh
 RUN cat trademark.sh >> /etc/bash.bashrc && rm trademark.sh
 
 COPY commands.sh commands.sh
 RUN cat commands.sh >> /etc/bash.bashrc && rm commands.sh
+
+RUN adduser --uid 1000 --gid 1000 --disabled-password --gecos "" pydemia
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 

@@ -1,4 +1,6 @@
 # User-defined
+*.tar.gz
+*.tar
 
 # Large files
 examples/inferenceservices/mobilenet/test_explainer_local_output_explain.json

@@ -31,39 +31,198 @@
 
 ## Installation
 
-https://www.telepresence.io/reference/install
+https://www.telepresence.io/docs/latest/install/
 
-### Ubuntu(16.04 or later)
-
-```bash
-curl -s https://packagecloud.io/install/repositories/datawireio/telepresence/script.deb.sh | sudo bash
-sudo apt install --no-install-recommends telepresence -y
-```
-
-### Fedora(26 or later)
+### Linux
 
 ```bash
-curl -s https://packagecloud.io/install/repositories/datawireio/telepresence/script.rpm.sh | sudo bash
-sudo dnf install telepresence -y
+# 1. Download the latest binary (~50 MB):
+sudo curl -fL https://app.getambassador.io/download/tel2/linux/amd64/latest/telepresence -o /usr/local/bin/telepresence
+
+# 2. Make the binary executable:
+sudo chmod a+x /usr/local/bin/telepresence
 ```
 
 ### OSX
+
+* Intel
+
+```bash
+# Intel Macs
+
+# Install via brew:
+brew install datawire/blackbird/telepresence
+
+# OR install manually:
+# 1. Download the latest binary (~60 MB):
+sudo curl -fL https://app.getambassador.io/download/tel2/darwin/amd64/latest/telepresence -o /usr/local/bin/telepresence
+
+# 2. Make the binary executable:
+sudo chmod a+x /usr/local/bin/telepresence
+```
+
+* Apple silicon
+
+```bash
+# Apple silicon Macs
+
+# Install via brew:
+brew install datawire/blackbird/telepresence-arm64
+
+# OR Install manually:
+# 1. Download the latest binary (~60 MB):
+sudo curl -fL https://app.getambassador.io/download/tel2/darwin/arm64/latest/telepresence -o /usr/local/bin/telepresence
+
+# 2. Make the binary executable:
+sudo chmod a+x /usr/local/bin/telepresence
+```
+
+### Windows
+
+[Install Powershell 7 on Windows](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?WT.mc_id=THOMASMAURER-blog-thmaure&view=powershell-7)
+
+```powershell
+# Windows is in Developer Preview, here is how you can install it:
+# Make sure you run the following from Powershell as Administrator
+# 1. Download the latest windows zip containing telepresence.exe and its dependencies (~50 MB):
+curl -fL https://app.getambassador.io/download/tel2/windows/amd64/latest/telepresence.zip -o telepresence.zip
+
+# 2. Unzip the zip file to a suitable directory + cleanup zip
+Expand-Archive -Path telepresence.zip
+Remove-Item 'telepresence.zip'
+cd telepresence
+
+# 3. Run the install-telepresence.ps1 to install telepresence's dependencies. It will install telepresence to
+# C:\telepresence by default, but you can specify a custom path $path with -Path $path
+Set-ExecutionPolicy Bypass -Scope Process
+.\install-telepresence.ps1
+
+# 4. Remove the unzipped directory
+cd ..
+Remove-Item telepresence
+# 5. Close your current Powershell and open a new one. Telepresence should now be usable as telepresence.exe
+```
 
 ---
 
 ## Usage
 
-### Check Authorities for K8S Cluster
+### Test `telepresence`
 
 ```bash
-# An example for gcloud:
-# create an `clusterrolebinding` to grant an admin role `cluster-admin` to your gcloud account.
-kubectl create clusterrolebinding my-cluster-admin-binding \
-    --clusterrole=cluster-admin \
-    --user=$(gcloud info --format="value(config.account)")
-
-kubectl config current-context
+$ telepresence connect
+Launching Telepresence Root Daemon
+Launching Telepresence User Daemon
+Connected to context <context-name> (https://<cluster public IP>)
 ```
+
+```bash
+$ telepresence status
+Root Daemon: Running
+  Version   : v2.5.5 (api 3)
+  DNS       :
+    Remote IP       : 127.0.0.1
+    Exclude suffixes: [.arpa .com .io .net .org .ru]
+    Include suffixes: []
+    Timeout         : 8s
+  Also Proxy : (0 subnets)
+  Never Proxy: (2 subnets)
+    - 3.37.249.56/32
+    - 13.209.142.68/32
+User Daemon: Running
+  Version         : v2.5.5 (api 3)
+  Executable      : /usr/local/bin/telepresence
+  Install ID      : fe778cf7-6536-4e84-8e3c-877a08c534d1
+  Ambassador Cloud:
+    Status    : Logged out
+    User ID   :
+    Account ID:
+    Email     :
+  Status            : Connected
+  Kubernetes server : https://<cluster public IP>
+  Kubernetes context: <context-name>
+  Intercepts        : 0 total
+```
+
+```bash
+$ telepresence quit
+
+```
+
+### Intercept a service
+
+* List available
+
+```bash
+$ telepresence list
+No Workloads (Deployments, StatefulSets, or ReplicaSets)
+
+$ telepresence list -n <namespace>
+account   : ready to intercept (traffic-agent not yet installed)
+core      : ready to intercept (traffic-agent not yet installed)
+history   : ready to intercept (traffic-agent not yet installed)
+ifservice : ready to intercept (traffic-agent not yet installed)
+monitoring: ready to intercept (traffic-agent not yet installed)
+repo      : ready to intercept (traffic-agent not yet installed)
+web       : ready to intercept (traffic-agent not yet installed)
+```
+
+* Get details
+
+```bash
+$ kubectl get service example-service -o yaml
+...
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: http
+...
+```
+
+* Intercept
+
+`telepresence intercept <service-name> --port <local-port>[:<remote-port>] --env-file <path-to-env-file>`
+`--env-json=FILENAME`
+`telepresence intercept [service] --port [port] -- [COMMAND]`
+`--mount=/tmp/`
+`--mount=true`: with env `$TELEPRESENCE_ROOT`
+
+> * EnvFile
+>   * VSCode: use `envFile` field of your configuration
+>   * JetBrains: use the `envFile` plugin
+
+```bash
+#  --local-only
+$ telepresence intercept example-service \
+    --port 8080:http \
+    --env-file ./telepresence.env
+Using Deployment example-service
+intercepted
+    Intercept name: example-service
+    State         : ACTIVE
+    Workload kind : Deployment
+    Destination   : 127.0.0.1:8080
+    Intercepting  : all TCP connections
+```
+
+#### Telepresence Environment Variables
+
+```env
+# Directory where all remote volumes mounts are rooted.
+#TELEPRESENCE_ROOT
+
+# Colon separated list of remotely mounted directories.
+#TELEPRESENCE_MOUNTS
+
+# The name of the intercepted container. Useful when a pod has several containers, and you want to know which one that was intercepted by Telepresence.
+#TELEPRESENCE_CONTAINER
+
+# ID of the intercept (same as the "x-intercept-id" http header).
+#TELEPRESENCE_INTERCEPT_ID=
+```
+
+---
 
 ### Launch a proxy to the existing deployment named `core`
 
@@ -184,4 +343,6 @@ Description:
                         the datawire/telepresence-k8s image is already
                         running.
 ```
+
+---
 
