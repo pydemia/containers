@@ -1,0 +1,128 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyter-lab
+  namespace: jupyter
+spec:
+  selector:
+    matchLabels:
+      app: jupyter-lab
+  template:
+    metadata:
+      labels:
+        app: jupyter-lab
+    spec:
+      # serviceAccountName: aiip-workflow
+      # initContainers:
+      # - name: chown
+      #   image: jupyter/datascience-notebook:x86_64-lab-4.0.0
+      #   imagePullPolicy: IfNotPresent
+      #   args:
+      #   - /bin/bash
+      #   - -c
+      #   # - chown -R 1000:100 /home/jovyan/.local
+      #   - mkdir -p /home/jovyan/.local/share/jupyter/runtime
+      #   # - mkdir -p /home/jovyan/.local/share/jupyter && chown -R 1000:100 /home/jovyan/.local/share/jupyter
+      #   volumeMounts:
+      #   - name: external-storage
+      #     mountPath: /home/jovyan/storage
+      #     readOnly: false
+      #   - name: external-storage
+      #     # mountPath: /usr/local/share/jupyter/kernels
+      #     mountPath: /home/jovyan/.local/share/jupyter/kernels
+      #     # mountPath: /opt/conda/share/jupyter/kernels
+      #     subPath: .jupyter/kernels
+      #     readOnly: false
+      #   - name: external-storage
+      #     mountPath: /opt/conda/envs
+      #     subPath: .jupyter/condaenvs
+      #     readOnly: false
+      #   - name: external-storage
+      #     mountPath: /usr/local/bin/create-condaenv
+      #     subPath: .jupyter/.local/bin/create-condaenv
+      #     readOnly: true
+      #   # securityContext:
+      #   #   runAsUser: 0
+      #   #   runAsGroup: 100
+      containers:
+      - name: server
+        # image: jupyter/datascience-notebook:latest  # notebook 7.0.1 redirect bug
+        image: jupyter/datascience-notebook:x86_64-lab-4.0.0
+        imagePullPolicy: IfNotPresent
+        args:
+        - jupyter
+        - lab
+        - --ServerApp.ip=0.0.0.0
+        # - --ServerApp.base_url=$(URL_SUBPATH)
+        # - --ServerApp.default_url='/lab'
+        - --Application.log_level=$(LOG_LEVEL)
+        - --ServerApp.token=469d212e31badc2e3d1eb11f81d56c9302231897ee3f5941
+        - --ServerApp.password='$(HASHED_PASSWD)'
+        # - --allow-root
+        env:
+        - name: LOG_LEVEL
+          value: DEBUG
+        # - name: URL_SUBPATH
+        #   value: "/"
+        - name: HASHED_PASSWD
+          value: "argon2:$argon2id$v=19$m=10240,t=10,p=8$VO6zTU17N2TbeY0fOXo+EQ$dka4qcisByIQgwQbOV16KrxV6vBy5OlAEgP1aYbNLjc"
+        # - name: JUPYTER_GATEWAY_URL
+        #   value: "http://enterprise-gateway:8888"
+        # - name: JUPYTER_GATEWAY_HTTP_USER
+        #   value: "guest"
+        # - name: JUPYTER_GATEWAY_HTTP_PWD
+        #   value: "guest-password"
+        # - name: EG_KERNEL_LAUNCH_TIMEOUT
+        #   value: "120"
+        resources:
+          requests:
+            memory: "4.0Gi"
+            cpu: "2.0"
+          limits:
+            memory: "8Gi"
+            cpu: "4.0"
+        ports:
+        - containerPort: 8888
+        volumeMounts:
+        - name: external-storage
+          mountPath: /home/jovyan/storage
+          readOnly: false
+        - name: external-storage
+          # mountPath: /usr/local/share/jupyter/kernels
+          mountPath: /home/jovyan/.local/share/jupyter
+          # mountPath: /opt/conda/share/jupyter/kernels
+          subPath: .jupyter/share/jupyter
+          readOnly: false
+        - name: external-storage
+          mountPath: /opt/conda/envs
+          subPath: .jupyter/condaenvs
+          readOnly: false
+        - name: external-storage
+          mountPath: /usr/local/bin/create-condaenv
+          subPath: .jupyter/.local/bin/create-condaenv
+          readOnly: true
+
+          # mountPath: /home/jovyan/.local/share/jupyter/kernels
+      # nodeSelector:
+      #   nodeType: worker
+      # securityContext:
+      #   # runAsUser: 0
+      #   runAsUser: 1000
+      #   runAsGroup: 100
+      #   fsGroup: 100
+        # fsGroupChangePolicy: "Always" # "OnRootMismatch", "Always"
+      volumes:
+      - name: external-storage
+        persistentVolumeClaim:
+          claimName: jupyter-storage
+        # defaultMode: 0755
+      # volumeClaimTemplates:
+      # - metadata:
+      #     name: persistent-storage
+      #   spec:
+      #     storageClassName: azureblob-nfs-premium
+      #     accessModes: ["ReadWriteMany"]
+      #     resources:
+      #       requests:
+      #         storage: 100Gi
