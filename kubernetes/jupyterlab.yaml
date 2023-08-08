@@ -22,8 +22,8 @@ spec:
       #   - /bin/bash
       #   - -c
       #   # - chown -R 1000:100 /home/jovyan/.local
-      #   - mkdir -p /home/jovyan/.local/share/jupyter/runtime
-      #   # - mkdir -p /home/jovyan/.local/share/jupyter && chown -R 1000:100 /home/jovyan/.local/share/jupyter
+      #   # - mkdir -p /home/jovyan/.local/share/jupyter/runtime
+      #   - mkdir -p /home/jovyan/.local/share/jupyter && chown -R 1000:100 /home/jovyan/.local/share/jupyter
       #   volumeMounts:
       #   - name: external-storage
       #     mountPath: /home/jovyan/storage
@@ -47,12 +47,14 @@ spec:
       #   #   runAsGroup: 100
       containers:
       - name: server
+        image: pydemia/jupyter-datascience-notebook:latest
         # image: jupyter/datascience-notebook:latest  # notebook 7.0.1 redirect bug
-        image: jupyter/datascience-notebook:x86_64-lab-4.0.0
-        imagePullPolicy: IfNotPresent
+        # image: jupyter/datascience-notebook:x86_64-lab-4.0.0
+        imagePullPolicy: Always
         args:
-        - jupyter
-        - lab
+        # - jupyter
+        # - lab
+        - start-notebook.sh
         - --ServerApp.ip=0.0.0.0
         # - --ServerApp.base_url=$(URL_SUBPATH)
         # - --ServerApp.default_url='/lab'
@@ -67,14 +69,8 @@ spec:
         #   value: "/"
         - name: HASHED_PASSWD
           value: "argon2:$argon2id$v=19$m=10240,t=10,p=8$VO6zTU17N2TbeY0fOXo+EQ$dka4qcisByIQgwQbOV16KrxV6vBy5OlAEgP1aYbNLjc"
-        # - name: JUPYTER_GATEWAY_URL
-        #   value: "http://enterprise-gateway:8888"
-        # - name: JUPYTER_GATEWAY_HTTP_USER
-        #   value: "guest"
-        # - name: JUPYTER_GATEWAY_HTTP_PWD
-        #   value: "guest-password"
-        # - name: EG_KERNEL_LAUNCH_TIMEOUT
-        #   value: "120"
+        - name: DOCKER_STACKS_JUPYTER_CMD
+          value: lab
         resources:
           requests:
             memory: "4.0Gi"
@@ -99,18 +95,17 @@ spec:
           subPath: .jupyter/condaenvs
           readOnly: false
         - name: external-storage
-          mountPath: /usr/local/bin/create-condaenv
+          mountPath: /opt/conda/bin/create-condaenv
           subPath: .jupyter/.local/bin/create-condaenv
           readOnly: true
-
           # mountPath: /home/jovyan/.local/share/jupyter/kernels
       # nodeSelector:
       #   nodeType: worker
-      # securityContext:
-      #   # runAsUser: 0
-      #   runAsUser: 1000
-      #   runAsGroup: 100
-      #   fsGroup: 100
+      securityContext:
+        # runAsUser: 0
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
         # fsGroupChangePolicy: "Always" # "OnRootMismatch", "Always"
       volumes:
       - name: external-storage
