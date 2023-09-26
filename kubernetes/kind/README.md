@@ -1,6 +1,6 @@
 # Kind
 
-See: https://github.com/kubernetes-sigs/kind
+See:https://github.com/kubernetes-sigs/kind
 
 ## Installation
 
