@@ -1,0 +1,88 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: istio-http-gateway
+  namespace: istio-system
+spec:
+  selector:
+    # app: istio-gateway
+    istio: gateway
+  servers:
+  - hosts:
+    - '*'
+    port:
+      number: 80
+      name: http
+      protocol: HTTP
+  # - port:
+  #     number: 443
+  #     name: https
+  #     protocol: HTTPS
+  #   tls:
+  #     mode: SIMPLE
+  #     serverCertificate: /etc/istio/ingressgateway-certs/tls.crt
+  #     privateKey: /etc/istio/ingressgateway-certs/tls.key
+  #   hosts:
+  #   - dev.api.storefront-demo.com
+  #   - test.api.storefront-demo.com
+  #   - uat.api.storefront-demo.com
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: vs-httpbin
+  namespace: app
+spec:
+  hosts:
+  - '*'
+  gateways:
+  - istio-system/istio-http-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /httpbin/
+    - uri:
+        prefix: /httpbin
+    rewrite:
+      uri: "/"
+    route:
+    - destination:
+        port:
+          number: 80
+        host: httpbin.app.svc.cluster.local
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpbin
+  namespace: app
+spec:
+  selector:
+    app: httpbin
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpbin
+  namespace: app
+  labels:
+    app: httpbin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpbin
+  template:
+    metadata:
+      labels:
+        app: httpbin
+    spec:
+      containers:
+        - name: server
+          image: pydemia/httpbin
+          ports:
+            - containerPort: 80
