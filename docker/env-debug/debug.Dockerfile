@@ -47,9 +47,6 @@ RUN sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)
     apt update -y && \
     apt install postgresql-16 -y
 
-RUN sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-
 # VIM IDE
 RUN git clone https://github.com/rapphil/vim-python-ide.git vim-python-ide && \
     cd vim-python-ide && echo ""| echo ""| ./install.sh
