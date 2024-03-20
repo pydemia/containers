@@ -32,7 +32,7 @@ RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 # k9s
 RUN k9s_version="v0.27.2" && \
-    k_os_type="linux" && \
+    k_os_type="Linux" && \
     curl -L https://github.com/derailed/k9s/releases/download/"${k9s_version}"/k9s_"$(echo "${k_os_type}" |sed 's/./\u&/')"_x86_64.tar.gz -o k9s.tar.gz && \
     mkdir -p ./k9s && \
     tar -zxf k9s.tar.gz -C ./k9s && \
