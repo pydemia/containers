@@ -9,18 +9,17 @@ RUN apt-get update -q
 
 # azul openjdk and maven
 RUN apt-get install -y software-properties-common && \
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xB1998361219BD9C9 && \
-    apt-add-repository 'deb http://repos.azulsystems.com/ubuntu stable main' && \
-    apt-get update -q && apt-get install -y zulu-14 maven=3.6.3-1
+    curl -s https://repos.azul.com/azul-repo.key | sudo gpg --dearmor -o /usr/share/keyrings/azul.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/azul.gpg] https://repos.azul.com/zulu/deb stable main" | sudo tee /etc/apt/sources.list.d/zulu.list && \
+    apt-get update -q && apt-get install -y zulu14-jdk maven=3.6.3-1
 
 ENV JAVA_HOME="/usr/lib/jvm/zulu-14-amd64"
 
 
 # google-cloud-sdk
-RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && \
-    apt-get update -y && \
-    apt-get install google-cloud-sdk -y
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && \
+    apt-get update -y && apt-get install google-cloud-sdk -y
 
 # aws cli 2
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
@@ -32,7 +31,7 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 # k9s
-RUN k9s_version="v0.24.2" && \
+RUN k9s_version="v0.27.2" && \
     k_os_type="linux" && \
     curl -L https://github.com/derailed/k9s/releases/download/"${k9s_version}"/k9s_"$(echo "${k_os_type}" |sed 's/./\u&/')"_x86_64.tar.gz -o k9s.tar.gz && \
     mkdir -p ./k9s && \
