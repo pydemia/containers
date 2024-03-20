@@ -41,6 +41,7 @@ RUN k9s_version="v0.24.2" && \
     rm -rf ./k9s ./k9s.tar.gz && \
     echo "\nInstalled in: $(which k9s)"
 
+# postgresql
 RUN apt install postgresql -y
 
 # VIM IDE
