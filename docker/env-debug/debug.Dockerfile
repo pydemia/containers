@@ -11,9 +11,9 @@ RUN apt-get update -q
 RUN apt-get install -y software-properties-common gnupg ca-certificates curl && \
     curl -s https://repos.azul.com/azul-repo.key | gpg --dearmor -o /usr/share/keyrings/azul.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/azul.gpg] https://repos.azul.com/zulu/deb stable main" | tee /etc/apt/sources.list.d/zulu.list && \
-    apt-get update -q && apt-get install -y zulu17-jdk maven=3.6.3-1
+    apt-get update -q && apt-get install -y zulu17-jdk maven
 
-ENV JAVA_HOME="/usr/lib/jvm/zulu-14-amd64"
+ENV JAVA_HOME="/usr/lib/jvm/zulu17-ca-amd64"
 
 
 # google-cloud-sdk
