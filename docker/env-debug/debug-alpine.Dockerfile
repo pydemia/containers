@@ -31,9 +31,10 @@ RUN apk --no-cache add \
 RUN apk add --update \
     python3 && \
     curl -sSL https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-469.0.0-linux-x86_64.tar.gz -o /tmp/gcl && \
-    tar -xf /tmp/gcl -C ~/.local/ && \
-    ~/.local/google-cloud-sdk/install.sh -q && \
-    echo 'PATH="${HOME}/.local/google-cloud-sdk/bin:${PATH}"' >> ~/.bashrc
+    tar -xf /tmp/gcl -C /usr/local/ && \
+    /usr/local/google-cloud-sdk/install.sh -q && \
+    echo 'PATH="/usr/local/google-cloud-sdk/bin:${PATH}"' >> ~/.bashrc && \
+    rm /tmp/gcl
     
 
 # postgresql
