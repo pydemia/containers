@@ -41,6 +41,7 @@ RUN k9s_version="v0.24.2" && \
     rm -rf ./k9s ./k9s.tar.gz && \
     echo "\nInstalled in: $(which k9s)"
 
+RUN apt install postgresql -y
 
 # VIM IDE
 RUN git clone https://github.com/rapphil/vim-python-ide.git vim-python-ide && \
