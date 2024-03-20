@@ -8,7 +8,7 @@ LABEL maintainer="Youngju Jaden Kim <pydemia@gmail.com>"
 RUN apt-get update -q
 
 # azul openjdk and maven
-RUN apt-get install -y software-properties-common && \
+RUN apt-get install -y software-properties-common gnupg ca-certificates curl && \
     curl -s https://repos.azul.com/azul-repo.key | gpg --dearmor -o /usr/share/keyrings/azul.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/azul.gpg] https://repos.azul.com/zulu/deb stable main" | tee /etc/apt/sources.list.d/zulu.list && \
     apt-get update -q && apt-get install -y zulu14-jdk maven=3.6.3-1
