@@ -32,5 +32,8 @@ RUN apk add --update \
     python3 && \
     curl -sSL https://sdk.cloud.google.com > /tmp/gcl && bash /tmp/gcl --install-dir=${HOME}/gcloud --disable-prompts
 
+# postgresql
+RUN apk add postgresql
+
 RUN rm -rf /var/cache/apk/*
 # ENTRYPOINT ["/bin/bash"]
