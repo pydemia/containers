@@ -41,7 +41,14 @@ RUN k9s_version="v0.27.2" && \
     echo "\nInstalled in: $(which k9s)"
 
 # postgresql
-RUN apt install postgresql -y
+#RUN apt install postgresql -y 16 on 22.04, 12 on 20.04
+RUN sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
+    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc| gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg && \
+    apt update -y && \
+    apt install postgresql-16 -y
+
+RUN sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 
 # VIM IDE
 RUN git clone https://github.com/rapphil/vim-python-ide.git vim-python-ide && \
