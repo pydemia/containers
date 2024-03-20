@@ -30,7 +30,6 @@ RUN apk --no-cache add \
 # google-cloud-sdk
 RUN apk add --update \
     python3 && \
-    curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-469.0.0-linux-x86_64.tar.gz
     curl -sSL https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-469.0.0-linux-x86_64.tar.gz -o /tmp/gcl && \
     tar -xf /tmp/gcl -C ~/.local/ && \
     ~/.local/google-cloud-sdk/install.sh -q && \
